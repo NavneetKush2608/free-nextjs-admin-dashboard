@@ -124,7 +124,7 @@ const AirQualityDashboard: React.FC = () => {
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 2xl:gap-7.5">
         <AQICard
-          value={aqi !== null ? aqi : "N/A"}
+          value={aqi !== null ? aqi : 0}
           text="Air Quality Index"
           subText={aqi !== null ? (aqi <= 50 ? "Good" : aqi <= 100 ? "Moderate" : "Unhealthy") : "No location selected"}
           color={aqi !== null ? (aqi <= 50 ? "#4ade80" : aqi <= 100 ? "#facc15" : "#f87171") : "#9ca3af"}
