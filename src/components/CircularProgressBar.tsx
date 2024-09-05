@@ -1,14 +1,14 @@
 import React from 'react';
 
 interface CircularProgressBarProps {
-  value: number;
+  value: number | string;
   maxValue: number;
   size: number;
   strokeWidth: number;
   text: string;
   subText: string;
   color: string;
-  textSize?: 'small' | 'normal';
+  textSize?: 'small' | 'medium' | 'large';
 }
 
 const CircularProgressBar: React.FC<CircularProgressBarProps> = ({
@@ -19,12 +19,11 @@ const CircularProgressBar: React.FC<CircularProgressBarProps> = ({
   text,
   subText,
   color,
-  textSize = 'normal',
+  textSize = 'medium',
 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
-  const progress = (value / maxValue) * 100;
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
+  const strokeDashoffset = circumference - (typeof value === 'number' ? (value / maxValue) * circumference : 0);
 
   return (
     <div className="relative flex flex-col items-center justify-center">

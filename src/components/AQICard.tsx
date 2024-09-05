@@ -2,7 +2,7 @@ import React from 'react';
 import CircularProgressBar from './CircularProgressBar';
 
 interface AQICardProps {
-  value: number;
+  value: number | string;
   text: string;
   subText: string;
   color: string;
