@@ -3,9 +3,8 @@ import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 
 export const metadata: Metadata = {
-  title:
-    "Next.js E-commerce Dashboard | TailAdmin - Next.js Dashboard Template",
-  description: "This is Next.js Home for TailAdmin Dashboard Template",
+  title: "AirWatch - Air Pollution Monitoring Dashboard",
+  description: "Real-time air quality monitoring and analysis dashboard",
 };
 
 export default function Home() {

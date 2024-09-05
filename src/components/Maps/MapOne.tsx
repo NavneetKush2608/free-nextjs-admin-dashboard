@@ -4,13 +4,19 @@ import "jsvectormap/dist/jsvectormap.css";
 import React, { useEffect } from "react";
 import "../../js/us-aea-en";
 
-const MapOne: React.FC = () => {
+interface MapOneProps {
+  lat: number | null;
+  lng: number | null;
+}
+
+const MapOne: React.FC<MapOneProps> = ({ lat, lng }) => {
   useEffect(() => {
+    if (lat === null || lng === null) return;
+
     const mapOne = new jsVectorMap({
       selector: "#mapOne",
       map: "us_aea_en",
       zoomButtons: true,
-
       regionStyle: {
         initial: {
           fill: "#C8D0D8",
@@ -30,7 +36,6 @@ const MapOne: React.FC = () => {
           cursor: "pointer",
         },
       },
-
       labels: {
         regions: {
           render(code: string) {
@@ -38,6 +43,16 @@ const MapOne: React.FC = () => {
           },
         },
       },
+      markers: [
+        {
+          coords: [lng, lat],
+          style: {
+            fill: "#3056D3",
+            stroke: "#fff",
+            strokeWidth: 2,
+          },
+        },
+      ],
     });
 
     return () => {
@@ -45,9 +60,8 @@ const MapOne: React.FC = () => {
       if (map) {
         map.innerHTML = "";
       }
-      // mapOne.destroy();
     };
-  }, []);
+  }, [lat, lng]);
 
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white px-7.5 py-6 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-7">
