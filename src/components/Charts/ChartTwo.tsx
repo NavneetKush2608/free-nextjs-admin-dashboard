@@ -69,31 +69,73 @@ const options: ApexOptions = {
       radius: 99,
     },
   },
+  tooltip: {
+    y: {
+      formatter: function (value) {
+        return Math.round(value * 10) / 10 + " µg/m³";
+      }
+    }
+  },
 };
 
-const ChartTwo: React.FC = () => {
+interface ChartTwoProps {
+  trendData: any[];
+}
+
+const ChartTwo: React.FC<ChartTwoProps> = ({ trendData }) => {
   const series = [
     {
       name: "PM2.5",
-      data: [35, 41, 36, 26, 45],
+      data: trendData.map(day => Math.round(day.pm25 * 10) / 10),
     },
     {
       name: "O3",
-      data: [52, 48, 55, 50, 53],
+      data: trendData.map(day => Math.round(day.o3 * 10) / 10),
     },
     {
       name: "NO2",
-      data: [20, 25, 22, 18, 24],
+      data: trendData.map(day => Math.round(day.no2 * 10) / 10),
     },
     {
       name: "SO2",
-      data: [10, 12, 15, 11, 13],
+      data: trendData.map(day => Math.round(day.so2 * 10) / 10),
     },
     {
       name: "CO",
-      data: [0.8, 1.0, 1.2, 0.9, 1.1],
+      data: trendData.map(day => Math.round(day.co * 10) / 10),
     },
   ];
+
+  const options: ApexOptions = {
+    chart: {
+      type: 'line',
+      height: 350,
+      toolbar: {
+        show: false,
+      },
+    },
+    colors: ['#3b82f6', '#10b981', '#ef4444', '#8b5cf6', '#f97316'],
+    dataLabels: {
+      enabled: false,
+    },
+    stroke: {
+      curve: 'smooth',
+    },
+    xaxis: {
+      categories: ['5 days ago', '4 days ago', '3 days ago', '2 days ago', 'Yesterday'],
+    },
+    yaxis: {
+      title: {
+        text: 'Concentration (µg/m³)',
+      },
+    },
+    legend: {
+      position: 'top',
+    },
+    grid: {
+      show: true,
+    },
+  };
 
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white p-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-7">
