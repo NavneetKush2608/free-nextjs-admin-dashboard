@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import L from "leaflet";
+import L, { DivIcon } from "leaflet"; // Ensure DivIcon is imported properly
 import "leaflet/dist/leaflet.css";
 import axios from "axios";
 import { QuadTree, Box, Point } from "js-quadtree";
@@ -44,7 +44,7 @@ const AQIMarker: React.FC<{ data: AQIData }> = React.memo(({ data }) => {
 
   const customIcon = useMemo(
     () =>
-      new L.DivIcon({
+      new DivIcon({
         className: "custom-div-icon",
         html: `<div style="background-color: ${getMarkerColor(
           data.aqi
