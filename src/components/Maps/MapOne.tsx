@@ -46,7 +46,7 @@ const AQIMarker: React.FC<{ data: AQIData }> = React.memo(({ data }) => {
 AQIMarker.displayName = "AQIMarker";
 
 interface MapEventHandlerProps {
-  mapRef: React.MutableRefObject<L.Map | null>;
+  mapRef: React.MutableRefObject<L.LeafletMap | null>;
   debouncedFetchNearbyAQI: (bounds: L.LatLngBounds) => void;
 }
 
