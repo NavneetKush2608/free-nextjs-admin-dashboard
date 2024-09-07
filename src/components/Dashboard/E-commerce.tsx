@@ -196,9 +196,9 @@ const AirQualityDashboard: React.FC = () => {
         <PollutionDistributionCard pm25={pm25} o3={o3} no2={no2} so2={so2} co={co} />
         <HealthRecommendationCard aqi={aqi !== null ? aqi : 0} />
         <MapOne lat={lat} lng={lng} />
-        <div className="col-span-12 xl:col-span-8">
+        {/* <div className="col-span-12 xl:col-span-8">
           <TableOne />
-        </div>
+        </div> */}
       </div>
     </>
   );
