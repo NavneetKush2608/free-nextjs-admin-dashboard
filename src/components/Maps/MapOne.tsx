@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, MarkerProps } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
@@ -23,7 +23,7 @@ interface AQIData {
   };
 }
 
-const AQIMarker: React.FC<{ data: AQIData }> = React.memo(({ data }) => {
+const AQIMarker: React.FC<{ data: AQIData } & MarkerProps> = React.memo(({ data }) => {
   const getMarkerColor = (aqi: number) => {
     if (aqi <= 50) return '#4ade80';
     if (aqi <= 100) return '#facc15';
@@ -33,17 +33,24 @@ const AQIMarker: React.FC<{ data: AQIData }> = React.memo(({ data }) => {
     return '#881337';
   };
 
-  const customIcon = useMemo(() => new L.DivIcon({
-    className: 'custom-div-icon',
-    html: `<div style="background-color: ${getMarkerColor(data.aqi)}; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-weight: bold;">${data.aqi}</div>`,
-    iconSize: [30, 30],
-    iconAnchor: [15, 15]
-  }), [data.aqi]);
+  const customIcon: L.DivIcon = useMemo(
+    () =>
+      new L.DivIcon({
+        className: 'custom-div-icon',
+        html: `<div style="background-color: ${getMarkerColor(
+          data.aqi
+        )}; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-weight: bold;">${data.aqi}</div>`,
+        iconSize: [30, 30],
+        iconAnchor: [15, 15],
+      }),
+    [data.aqi]
+  );
 
   return (
     <Marker position={[data.lat, data.lon]} icon={customIcon}>
       <Popup>
-        <strong>{data.station.name}</strong><br />
+        <strong>{data.station.name}</strong>
+        <br />
         AQI: {data.aqi}
       </Popup>
     </Marker>
@@ -91,7 +98,6 @@ const MapOne: React.FC<MapOneProps> = ({ lat, lng }) => {
   const quadtreeRef = useRef<QuadTree<AQIData>>(new QuadTree(new Box(0, 0, 360, 180)));
   const cachedDataRef = useRef<Map<string, AQIData>>(new Map());
 
-  // Define updateVisibleMarkers before it is used in fetchNearbyAQI
   const updateVisibleMarkers = useCallback((bounds: L.LatLngBounds) => {
     const visibleItems = quadtreeRef.current.query(new Box(
       bounds.getWest(),
