@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import L from "leaflet";
+import L, { Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import axios from "axios";
 import { QuadTree, Box, Point } from "js-quadtree";
@@ -46,7 +46,7 @@ const AQIMarker: React.FC<{ data: AQIData }> = React.memo(({ data }) => {
 AQIMarker.displayName = "AQIMarker";
 
 interface MapEventHandlerProps {
-  mapRef: React.MutableRefObject<L.Map | null>;
+  mapRef: React.MutableRefObject<LeafletMap | null>;
   debouncedFetchNearbyAQI: (bounds: L.LatLngBounds) => void;
 }
 
@@ -81,7 +81,7 @@ MapEventHandler.displayName = "MapEventHandler";
 const MapOne: React.FC<MapOneProps> = ({ lat, lng }) => {
   const [nearbyAQI, setNearbyAQI] = useState<AQIData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const mapRef = useRef<L.Map | null>(null);
+  const mapRef = useRef<LeafletMap | null>(null);
   const quadtreeRef = useRef<QuadTree<AQIData>>(new QuadTree(new Box(0, 0, 360, 180)));
   const cachedDataRef = useRef<Map<string, AQIData>>(new Map());
 
