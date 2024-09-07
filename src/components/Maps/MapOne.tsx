@@ -56,7 +56,7 @@ const AQIMarker: React.FC<{ data: AQIData }> = React.memo(({ data }) => {
   );
 
   return (
-    <Marker position={[data.lat, data.lon]} icon={customIcon as L.DivIcon}>
+    <Marker position={[data.lat, data.lon]} icon={customIcon}>
       <Popup>
         <strong>{data.station.name}</strong>
         <br />
