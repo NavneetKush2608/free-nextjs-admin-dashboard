@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import L, { DivIcon } from "leaflet"; // Ensure DivIcon is imported properly
+import L, { DivIcon } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import axios from "axios";
 import { QuadTree, Box, Point } from "js-quadtree";
@@ -56,7 +56,7 @@ const AQIMarker: React.FC<{ data: AQIData }> = React.memo(({ data }) => {
   );
 
   return (
-    <Marker position={[data.lat, data.lon]} icon={customIcon as L.Icon<any>}>
+    <Marker position={[data.lat, data.lon]} icon={customIcon as L.DivIcon}>
       <Popup>
         <strong>{data.station.name}</strong>
         <br />
@@ -94,7 +94,7 @@ const MapEventHandler: React.FC<MapEventHandlerProps> = ({ mapRef, debouncedFetc
         map.off("zoomend", handleMapChange);
       };
     }
-  }, [map, debouncedFetchNearbyAQI]);
+  }, [map, debouncedFetchNearbyAQI, mapRef]);
 
   return null;
 };
