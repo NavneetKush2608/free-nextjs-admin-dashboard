@@ -33,30 +33,8 @@ interface AQIData {
 }
 
 const AQIMarker: React.FC<{ data: AQIData }> = React.memo(({ data }) => {
-  const getMarkerColor = (aqi: number) => {
-    if (aqi <= 50) return "#4ade80";
-    if (aqi <= 100) return "#facc15";
-    if (aqi <= 150) return "#fb923c";
-    if (aqi <= 200) return "#f87171";
-    if (aqi <= 300) return "#7c3aed";
-    return "#881337";
-  };
-
-  const customIcon = useMemo(
-    () =>
-      new L.DivIcon({
-        className: "custom-div-icon",
-        html: `<div style="background-color: ${getMarkerColor(
-          data.aqi
-        )}; color: white; border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; font-weight: bold;">${data.aqi}</div>`,
-        iconSize: [30, 30],
-        iconAnchor: [15, 15],
-      }),
-    [data.aqi]
-  );
-
   return (
-    <Marker position={[data.lat, data.lon]} icon={customIcon}>
+    <Marker position={[data.lat, data.lon]}>
       <Popup>
         <strong>{data.station.name}</strong>
         <br />
