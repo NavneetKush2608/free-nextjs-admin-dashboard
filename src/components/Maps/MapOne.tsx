@@ -1,21 +1,17 @@
 "use client";
 
-import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import axios from "axios";
-import { QuadTree, Box, Point } from "js-quadtree";
-import debounce from "lodash/debounce";
-
-// Fix for missing default icons in Leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png").default,
-  iconUrl: require("leaflet/dist/images/marker-icon.png").default,
-  shadowUrl: require("leaflet/dist/images/marker-shadow.png").default,
-});
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import 'ol/ol.css';
+import { Map, View } from 'ol';
+import TileLayer from 'ol/layer/Tile';
+import OSM from 'ol/source/OSM';
+import { fromLonLat } from 'ol/proj';
+import axios from 'axios';
+import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style';
+import { Feature } from 'ol';
+import Point from 'ol/geom/Point';
+import VectorSource from 'ol/source/Vector';
+import VectorLayer from 'ol/layer/Vector';
 
 interface MapOneProps {
   lat: number | null;
@@ -32,112 +28,110 @@ interface AQIData {
   };
 }
 
-const AQIMarker: React.FC<{ data: AQIData }> = React.memo(({ data }) => {
-  return (
-    <Marker position={[data.lat, data.lon]}>
-      <Popup>
-        <strong>{data.station.name}</strong>
-        <br />
-        AQI: {data.aqi}
-      </Popup>
-    </Marker>
-  );
-});
-AQIMarker.displayName = "AQIMarker";
-
-interface MapEventHandlerProps {
-  mapRef: React.MutableRefObject<L.LeafletMap | null>;
-  debouncedFetchNearbyAQI: (bounds: L.LatLngBounds) => void;
-}
-
-const MapEventHandler: React.FC<MapEventHandlerProps> = ({ mapRef, debouncedFetchNearbyAQI }) => {
-  const map = useMap();
-  mapRef.current = map;
-
-  useEffect(() => {
-    if (map) {
-      const handleMapChange = () => {
-        const bounds = map.getBounds();
-        debouncedFetchNearbyAQI(bounds);
-      };
-
-      map.on("moveend", handleMapChange);
-      map.on("zoomend", handleMapChange);
-
-      // Initial fetch
-      handleMapChange();
-
-      return () => {
-        map.off("moveend", handleMapChange);
-        map.off("zoomend", handleMapChange);
-      };
-    }
-  }, [map, debouncedFetchNearbyAQI, mapRef]);
-
-  return null;
+const getAqiColor = (aqi: number): string => {
+  if (aqi <= 50) return 'green';
+  if (aqi <= 100) return 'yellow';
+  if (aqi <= 150) return 'orange';
+  if (aqi <= 200) return 'red';
+  if (aqi <= 300) return 'purple';
+  return 'maroon';
 };
-MapEventHandler.displayName = "MapEventHandler";
 
 const MapOne: React.FC<MapOneProps> = ({ lat, lng }) => {
-  const [nearbyAQI, setNearbyAQI] = useState<AQIData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const mapRef = useRef<L.Map | null>(null);
-  const quadtreeRef = useRef<QuadTree<AQIData>>(new QuadTree(new Box(0, 0, 360, 180)));
-  const cachedDataRef = useRef<Map<string, AQIData>>(new Map());
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<Map | null>(null);
+  const [aqi, setAqi] = useState<number | null>(null);
+  const markerLayerRef = useRef<VectorLayer<VectorSource> | null>(null);
 
-  const updateVisibleMarkers = useCallback((bounds: L.LatLngBounds) => {
-    const visibleItems = quadtreeRef.current.query(
-      new Box(
-        bounds.getWest(),
-        bounds.getSouth(),
-        bounds.getEast() - bounds.getWest(),
-        bounds.getNorth() - bounds.getSouth()
-      )
+  const initializeMap = useCallback(() => {
+    if (!mapContainerRef.current) return;
+
+    const initialMap = new Map({
+      target: mapContainerRef.current,
+      layers: [
+        new TileLayer({
+          source: new OSM(),
+        }),
+      ],
+      view: new View({
+        center: fromLonLat([lng || 0, lat || 0]),
+        zoom: 13,
+      }),
+    });
+
+    mapRef.current = initialMap;
+  }, [lat, lng]);
+
+  const updateMarker = useCallback(() => {
+    if (!mapRef.current || lat === null || lng === null || aqi === null) return;
+
+    if (markerLayerRef.current) {
+      mapRef.current.removeLayer(markerLayerRef.current);
+    }
+
+    const vectorSource = new VectorSource();
+    const marker = new Feature({
+      geometry: new Point(fromLonLat([lng, lat])),
+    });
+
+    marker.setStyle(
+      new Style({
+        image: new CircleStyle({
+          radius: 8,
+          fill: new Fill({ color: getAqiColor(aqi) }),
+          stroke: new Stroke({ color: 'white', width: 2 }),
+        }),
+      })
     );
-    setNearbyAQI(visibleItems.map((item) => item.data));
-  }, []);
 
-  const fetchNearbyAQI = useCallback(
-    async (bounds: L.LatLngBounds) => {
-      setIsLoading(true);
-      try {
-        const response = await axios.get(
-          `https://api.waqi.info/v2/map/bounds/?latlng=${bounds.getSouth()},${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()}&token=57b74b070c5f096f0f45fc49954843db05043616`
-        );
-        if (response.data.status === "ok") {
-          const newData = response.data.data;
-          newData.forEach((item: AQIData) => {
-            if (!cachedDataRef.current.has(item.uid)) {
-              cachedDataRef.current.set(item.uid, item);
-              quadtreeRef.current.insert(new Point(item.lon, item.lat, item));
-            }
-          });
-          updateVisibleMarkers(bounds);
-        } else {
-          console.error("Error fetching AQI data:", response.data.data);
-        }
-      } catch (error) {
-        console.error("Error fetching nearby AQI data:", error);
-      } finally {
-        setIsLoading(false);
+    vectorSource.addFeature(marker);
+
+    const markerLayer = new VectorLayer({
+      source: vectorSource,
+    });
+
+    mapRef.current.addLayer(markerLayer);
+    markerLayerRef.current = markerLayer;
+  }, [lat, lng, aqi]);
+
+  const fetchAqiData = useCallback(async () => {
+    if (lat === null || lng === null) return;
+
+    try {
+      const response = await axios.get(
+        `https://api.waqi.info/feed/geo:${lat};${lng}/?token=57b74b070c5f096f0f45fc49954843db05043616`
+      );
+      const aqiData = response.data.data.aqi;
+      setAqi(aqiData);
+    } catch (error) {
+      console.error('Error fetching AQI data:', error);
+    }
+  }, [lat, lng]);
+
+  useEffect(() => {
+    initializeMap();
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.setTarget(undefined);
+        mapRef.current = null;
       }
-    },
-    [updateVisibleMarkers]
-  );
+    };
+  }, [initializeMap]);
 
-  const debouncedFetchNearbyAQI = useMemo(
-    () => debounce((bounds: L.LatLngBounds) => fetchNearbyAQI(bounds), 300),
-    [fetchNearbyAQI]
-  );
+  useEffect(() => {
+    if (mapRef.current && lat !== null && lng !== null) {
+      mapRef.current.getView().setCenter(fromLonLat([lng, lat]));
+      mapRef.current.getView().setZoom(13);
+      fetchAqiData();
+    }
+  }, [lat, lng, fetchAqiData]);
 
-  const memoizedMarkers = useMemo(
-    () =>
-      nearbyAQI.map((station) => <AQIMarker key={station.uid} data={station} />),
-    [nearbyAQI]
-  );
+  useEffect(() => {
+    updateMarker();
+  }, [updateMarker]);
 
-  if (!lat || !lng) {
-    return <div>Loading map...</div>;
+  if (lat === null || lng === null) {
+    return <div>No location selected</div>;
   }
 
   return (
@@ -146,24 +140,10 @@ const MapOne: React.FC<MapOneProps> = ({ lat, lng }) => {
         <h4 className="text-xl font-semibold text-black dark:text-white">Air Quality Map</h4>
       </div>
       <div className="relative h-[400px] w-full">
-        <MapContainer
-          center={[lat, lng]}
-          zoom={10}
-          style={{ height: "100%", width: "100%", borderRadius: "0.375rem" }}
-          zoomControl={false}
-          key={`${lat}-${lng}`}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution="&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> contributors"
-          />
-          <MapEventHandler mapRef={mapRef} debouncedFetchNearbyAQI={debouncedFetchNearbyAQI} />
-          {memoizedMarkers}
-        </MapContainer>
+        <div ref={mapContainerRef} style={{ width: '100%', height: '100%' }} />
       </div>
     </div>
   );
 };
-MapOne.displayName = "MapOne";
 
 export default MapOne;
