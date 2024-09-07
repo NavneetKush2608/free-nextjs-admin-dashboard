@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     "This is Next.js Tables page for TailAdmin - Next.js Tailwind CSS Admin Dashboard Template",
 };
 
-const TablesPage = () => {
+const TablesPage: React.FC = () => {
   return (
     <DefaultLayout>
       <Breadcrumb pageName="Tables" />
@@ -25,5 +25,7 @@ const TablesPage = () => {
     </DefaultLayout>
   );
 };
+
+TablesPage.displayName = 'TablesPage';
 
 export default TablesPage;

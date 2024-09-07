@@ -82,6 +82,7 @@ const PollutionDistributionCard: React.FC<PollutionDistributionCardProps> = ({ p
     </div>
   );
 };
+PollutionDistributionCard.displayName = 'PollutionDistributionCard';
 
 const AirQualityDashboard: React.FC = () => {
   const { lat, lng } = useLocation();
@@ -202,5 +203,6 @@ const AirQualityDashboard: React.FC = () => {
     </>
   );
 };
+AirQualityDashboard.displayName = 'AirQualityDashboard';
 
 export default AirQualityDashboard;

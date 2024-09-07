@@ -1,5 +1,6 @@
 "use client";
 
+import React from 'react';
 import Image from "next/image";
 import { Product } from "@/types/product";
 
@@ -38,7 +39,7 @@ const productData: Product[] = [
   },
 ];
 
-const TableTwo = () => {
+const TableTwo: React.FC = () => {
   return (
     <div className="rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark">
       <div className="px-4 py-6 md:px-6 xl:px-7.5">
@@ -106,5 +107,7 @@ const TableTwo = () => {
     </div>
   );
 };
+
+TableTwo.displayName = 'TableTwo';
 
 export default TableTwo;

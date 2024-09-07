@@ -1,4 +1,4 @@
-import ECommerce from "@/components/Dashboard/E-commerce";
+import AirQualityDashboard from "@/components/Dashboard/E-commerce";
 import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 
@@ -7,12 +7,16 @@ export const metadata: Metadata = {
   description: "Real-time air quality monitoring and analysis dashboard",
 };
 
-export default function Home() {
+const Home: React.FC = () => {
   return (
     <>
       <DefaultLayout>
-        <ECommerce />
+        <AirQualityDashboard />
       </DefaultLayout>
     </>
   );
-}
+};
+
+Home.displayName = 'Home';
+
+export default Home;

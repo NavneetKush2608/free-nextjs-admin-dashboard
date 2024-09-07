@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
@@ -47,6 +49,40 @@ const AQIMarker: React.FC<{ data: AQIData }> = React.memo(({ data }) => {
     </Marker>
   );
 });
+AQIMarker.displayName = 'AQIMarker';
+
+interface MapEventHandlerProps {
+  mapRef: React.MutableRefObject<L.Map | null>;
+  debouncedFetchNearbyAQI: (bounds: L.LatLngBounds) => void;
+}
+
+const MapEventHandler: React.FC<MapEventHandlerProps> = ({ mapRef, debouncedFetchNearbyAQI }) => {
+  const map = useMap();
+  mapRef.current = map;
+
+  useEffect(() => {
+    if (map) {
+      const handleMapChange = () => {
+        const bounds = map.getBounds();
+        debouncedFetchNearbyAQI(bounds);
+      };
+
+      map.on('moveend', handleMapChange);
+      map.on('zoomend', handleMapChange);
+
+      // Initial fetch
+      handleMapChange();
+
+      return () => {
+        map.off('moveend', handleMapChange);
+        map.off('zoomend', handleMapChange);
+      };
+    }
+  }, [map, debouncedFetchNearbyAQI]);
+
+  return null;
+};
+MapEventHandler.displayName = 'MapEventHandler';
 
 const MapOne: React.FC<MapOneProps> = ({ lat, lng }) => {
   const [nearbyAQI, setNearbyAQI] = useState<AQIData[]>([]);
@@ -93,33 +129,6 @@ const MapOne: React.FC<MapOneProps> = ({ lat, lng }) => {
     [fetchNearbyAQI]
   );
 
-  const MapEventHandler: React.FC = () => {
-    const map = useMap();
-    mapRef.current = map;
-
-    useEffect(() => {
-      if (map) {
-        const handleMapChange = () => {
-          const bounds = map.getBounds();
-          debouncedFetchNearbyAQI(bounds);
-        };
-
-        map.on('moveend', handleMapChange);
-        map.on('zoomend', handleMapChange);
-
-        // Initial fetch
-        handleMapChange();
-
-        return () => {
-          map.off('moveend', handleMapChange);
-          map.off('zoomend', handleMapChange);
-        };
-      }
-    }, [map]);
-
-    return null;
-  };
-
   const memoizedMarkers = useMemo(() => 
     nearbyAQI.map(station => (
       <AQIMarker key={station.uid} data={station} />
@@ -149,12 +158,13 @@ const MapOne: React.FC<MapOneProps> = ({ lat, lng }) => {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
-          <MapEventHandler />
+          <MapEventHandler mapRef={mapRef} debouncedFetchNearbyAQI={debouncedFetchNearbyAQI} />
           {memoizedMarkers}
         </MapContainer>
       </div>
     </div>
   );
 };
+MapOne.displayName = 'MapOne';
 
 export default MapOne;

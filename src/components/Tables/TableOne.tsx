@@ -149,4 +149,6 @@ const TableOne: React.FC = () => {
   );
 };
 
+TableOne.displayName = 'TableOne';
+
 export default TableOne;
