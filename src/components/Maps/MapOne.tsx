@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap, MarkerProps } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import axios from "axios";
@@ -32,7 +32,7 @@ interface AQIData {
   };
 }
 
-const AQIMarker: React.FC<{ data: AQIData } & MarkerProps> = React.memo(({ data }) => {
+const AQIMarker: React.FC<{ data: AQIData }> = React.memo(({ data }) => {
   const getMarkerColor = (aqi: number) => {
     if (aqi <= 50) return "#4ade80";
     if (aqi <= 100) return "#facc15";
@@ -42,7 +42,7 @@ const AQIMarker: React.FC<{ data: AQIData } & MarkerProps> = React.memo(({ data 
     return "#881337";
   };
 
-  const customIcon: L.DivIcon = useMemo(
+  const customIcon = useMemo(
     () =>
       new L.DivIcon({
         className: "custom-div-icon",
