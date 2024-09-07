@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
-import L, { DivIcon } from "leaflet";
+import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import axios from "axios";
 import { QuadTree, Box, Point } from "js-quadtree";
@@ -44,7 +44,7 @@ const AQIMarker: React.FC<{ data: AQIData }> = React.memo(({ data }) => {
 
   const customIcon = useMemo(
     () =>
-      new DivIcon({
+      new L.DivIcon({
         className: "custom-div-icon",
         html: `<div style="background-color: ${getMarkerColor(
           data.aqi
@@ -56,7 +56,7 @@ const AQIMarker: React.FC<{ data: AQIData }> = React.memo(({ data }) => {
   );
 
   return (
-    <Marker position={[data.lat, data.lon]} icon={customIcon as L.DivIcon}>
+    <Marker position={[data.lat, data.lon]} icon={customIcon}>
       <Popup>
         <strong>{data.station.name}</strong>
         <br />
@@ -173,6 +173,7 @@ const MapOne: React.FC<MapOneProps> = ({ lat, lng }) => {
           zoom={10}
           style={{ height: "100%", width: "100%", borderRadius: "0.375rem" }}
           zoomControl={false}
+          key={`${lat}-${lng}`}
         >
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
