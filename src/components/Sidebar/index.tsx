@@ -46,8 +46,7 @@ const menuGroups = [
           </svg>
         ),
         label: "Dashboard",
-        route: "#",
-        children: [{ label: "Air-Pollution", route: "/" }],
+        route: "/dashboard",
       },
       {
         icon: (

@@ -1,22 +1,18 @@
-import AirQualityDashboard from "@/components/Dashboard/E-commerce";
 import { Metadata } from "next";
-import DefaultLayout from "@/components/Layouts/DefaultLayout";
+import Link from "next/link";
+import GetStarted from "@/components/GetStarted/GetStarted";
 
 export const metadata: Metadata = {
-  title: "AirWatch - Air Pollution Monitoring Dashboard",
-  description: "Real-time air quality monitoring and analysis dashboard",
+  title: "AirWatch - Get Started",
+  description: "Welcome to AirWatch - Air Pollution Monitoring Dashboard",
 };
 
 const Home: React.FC = () => {
   return (
-    <>
-      <DefaultLayout>
-        <AirQualityDashboard />
-      </DefaultLayout>
-    </>
+    <div>
+      <GetStarted />
+    </div>
   );
 };
-
-Home.displayName = 'Home';
 
 export default Home;

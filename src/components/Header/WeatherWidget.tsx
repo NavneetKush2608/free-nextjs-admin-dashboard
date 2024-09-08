@@ -36,8 +36,8 @@ const WeatherWidget: React.FC = () => {
         fetchWeather();
     }, [lat, lng]);
 
-    if (error) return <div className="text-red-500">{error}</div>;
-    if (!weather) return <div>Loading weather...</div>;
+    if (error) return <div className="text-sm text-red-500 dark:text-red-400">{error}</div>;
+    if (!weather) return <div className="text-sm text-gray-500 dark:text-gray-400">Loading weather...</div>;
 
     const getWeatherIcon = (description: string) => {
         switch (description.toLowerCase()) {
@@ -55,13 +55,13 @@ const WeatherWidget: React.FC = () => {
     };
 
     return (
-        <div className="flex items-center space-x-2 rounded-full px-3 py-1 text-sm text-boxdark-2">
+        <div className="flex items-center space-x-2 rounded-full px-3 py-1 text-sm">
             <div className="relative">
                 <span className="text-2xl">{getWeatherIcon(weather.description)}</span>
             </div>
             <div className="flex flex-col">
                 <span className="font-medium">{weather.temperature}°C</span>
-                <span className="text-xs text-boxdark-2">{weather.description}</span>
+                <span className="text-xs">{weather.description}</span>
             </div>
         </div>
     );

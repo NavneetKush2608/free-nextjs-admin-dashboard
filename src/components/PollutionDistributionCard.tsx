@@ -54,11 +54,7 @@ const PollutionDistributionCard: React.FC<PollutionDistributionCardProps> = ({ p
 
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white p-7.5 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-5">
-      <div className="mb-4">
-        <h4 className="text-xl font-semibold text-black dark:text-white">
-          Pollution Distribution
-        </h4>
-      </div>
+      
       <div className="mb-2">
         <div id="pollutionDistribution" className="mx-auto flex justify-center">
           <ReactApexChart
