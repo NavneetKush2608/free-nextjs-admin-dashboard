@@ -7,6 +7,8 @@ import slide3 from './slide3.svg';
 import { useRouter } from 'next/navigation';
 import { useLocation } from '../contexts/LocationContext';
 import axios from 'axios';
+import { useLocationSearch } from '@/hooks/useLocationSearch';
+import Link from 'next/link';
 
 const GetStarted: React.FC = () => {
   const router = useRouter();
@@ -26,77 +28,24 @@ const GetStarted: React.FC = () => {
 
   ];
   const { setLocation, locationName } = useLocation();
-  const [query, setQuery] = useState(locationName);
-  const [isSearchActive, setIsSearchActive] = useState(false);
-  const [results, setResults] = useState([]);
-  const [activeIndex, setActiveIndex] = useState(-1);
+  const {
+    query,
+    setQuery,
+    isSearchActive,
+    setIsSearchActive,
+    results,
+    activeIndex,
+    inputRef,
+    toggleSearch,
+    handleInputChange,
+    handleLocationSelect: originalHandleLocationSelect,
+    handleKeyDown,
+    clearInput
+  } = useLocationSearch();
 
-  const inputRef = useRef<HTMLInputElement>(null);
-  const apiKey = "2c746d271c1a4632b04eebccb46442dd"; // Replace with your actual API key
-
-  const toggleSearch = () => setIsSearchActive((prev) => !prev);
-
-  const fetchLocations = async (searchQuery: string) => {
-    try {
-      const response = await fetch(
-        `https://api.geoapify.com/v1/geocode/autocomplete?text=${searchQuery}&apiKey=${apiKey}`
-      );
-      const data = await response.json();
-      setResults(data.features || []);
-      setActiveIndex(-1);
-    } catch (error) {
-      console.error("Error fetching locations:", error);
-    }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const searchQuery = e.target.value;
-    setQuery(searchQuery);
-
-    if (searchQuery.trim() !== "") {
-      fetchLocations(searchQuery);
-    } else {
-      setResults([]);
-    }
-  };
-
-  const handleLocationSelect = (location: any) => {
-    const formattedName = location.properties.formatted;
-    setQuery(formattedName);
-    setIsSearchActive(false);
-    setResults([]);
-    setLocation(location.properties.lat, location.properties.lon, formattedName);
+  const handleLocationSelect = (result: any) => {
+    originalHandleLocationSelect(result);
     router.push('/dashboard');
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "ArrowDown") {
-      setActiveIndex((prevIndex) =>
-        prevIndex < results.length - 1 ? prevIndex + 1 : prevIndex
-      );
-    } else if (e.key === "ArrowUp") {
-      setActiveIndex((prevIndex) =>
-        prevIndex > 0 ? prevIndex - 1 : prevIndex
-      );
-    } else if (e.key === "Enter" && activeIndex >= 0) {
-      handleLocationSelect(results[activeIndex]);
-    }
-  };
-
-  useEffect(() => {
-    if (isSearchActive && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isSearchActive]);
-
-  useEffect(() => {
-    setQuery(locationName);
-  }, [locationName]);
-
-  const clearInput = () => {
-    setQuery("");
-    setResults([]);
-    setIsSearchActive(false);
   };
 
   const slides = [slide1, slide2, slide3];
@@ -138,7 +87,6 @@ const GetStarted: React.FC = () => {
         </div>
 
         {/* Search */}
-        
         <div className="w-full max-w-md">
           <div className="relative">
             <input
@@ -222,12 +170,16 @@ const GetStarted: React.FC = () => {
 
         {/* Sign up / Sign in - Hidden on mobile, visible on larger screens */}
         <div className="hidden sm:flex items-center space-x-4">
+          <Link href="/auth/signup">
           <button className="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base text-green-600 border border-green-600 rounded-full hover:bg-green-600 hover:text-white transition duration-300">
             Sign Up
           </button>
+          </Link>
+          <Link href="/auth/signin">
           <button className="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base text-white bg-green-600 rounded-full hover:bg-green-700 transition duration-300">
             Sign In
           </button>
+          </Link>
         </div>
       </div>
 
@@ -304,12 +256,16 @@ const GetStarted: React.FC = () => {
         </div>
         {/* Sign up / Sign in - Visible only on mobile */}
         <div className="flex justify-center w-full sm:hidden items-center space-x-4 mt-6">
-          <button className="px-3 py-1 text-sm text-green-600 border border-green-600 rounded-full hover:bg-green-600 hover:text-white transition duration-300">
-            Sign Up
-          </button>
-          <button className="px-3 py-1 text-sm text-white bg-green-600 rounded-full hover:bg-green-700 transition duration-300">
-            Sign In
-          </button>
+          <Link href="/auth/signup">
+            <button className="px-3 py-1 text-sm text-green-600 border border-green-600 rounded-full hover:bg-green-600 hover:text-white transition duration-300">
+              Sign Up
+            </button>
+          </Link>
+          <Link href="/auth/signin">
+            <button className="px-3 py-1 text-sm text-white bg-green-600 rounded-full hover:bg-green-700 transition duration-300">
+              Sign In
+            </button>
+          </Link>
         </div>
       </div>
         </div>

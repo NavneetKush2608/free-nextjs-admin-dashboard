@@ -1,29 +1,52 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import Image from "next/image";
-import { Metadata } from "next";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Link from "next/link";
-import { FiShare2, FiMapPin, FiCalendar, FiUser, FiMail, FiHeart, FiActivity } from 'react-icons/fi';
-
-export const metadata: Metadata = {
-  title: "Profile | AirWatch",
-  description: "View and edit your AirWatch profile",
-};
+import { FiShare2, FiMapPin, FiCalendar, FiUser, FiMail, FiHeart, FiActivity, FiLogOut } from 'react-icons/fi';
+import { auth, db } from "@/components/firebase/firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { User, signOut } from "firebase/auth";
+import { useRouter } from "next/navigation";
 
 const Profile = () => {
-  // Dummy user data (replace with actual user data fetching logic)
-  const user = {
-    name: "John Doe",
-    email: "john.doe@example.com",
-    age: 30,
-    gender: "Male",
-    location: "New York, USA",
-    avatar: "/path/to/avatar.jpg", // Replace with actual path
-    birthdate: "1993-05-15",
-    interests: ["Air Quality", "Climate Change", "Sustainability"],
-    joinDate: "2022-01-01",
-    lastActive: "2023-04-15",
+  const [user, setUser] = useState<User | null>(null);
+  const [userData, setUserData] = useState<any>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
+      if (authUser) {
+        setUser(authUser);
+        const userRef = doc(db, "users", authUser.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          setUserData(userSnap.data());
+        }
+      } else {
+        setUser(null);
+        setUserData(null);
+        router.push("/auth/signin");
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push("/");
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
   };
+
+  if (!user || !userData) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <DefaultLayout>
@@ -35,15 +58,15 @@ const Profile = () => {
             <div className="absolute bottom-0 left-0 right-0 flex items-end justify-between p-6">
               <div className="flex items-center space-x-5">
                 <Image
-                  src={user.avatar}
-                  alt={user.name}
+                  src={userData.avatar}
+                  alt={userData.name}
                   width={160}
                   height={160}
                   className="h-40 w-40 rounded-full border-4 border-white bg-white object-cover shadow-lg"
                 />
                 <div className="text-white">
-                  <h1 className="text-4xl font-bold">{user.name}</h1>
-                  <p className="text-xl">{user.email}</p>
+                  <h1 className="text-4xl font-bold">{userData.name}</h1>
+                  <p className="text-xl">{userData.email}</p>
                 </div>
               </div>
               <button className="rounded-full bg-white p-3 text-green-600 shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
@@ -60,22 +83,22 @@ const Profile = () => {
                   <div className="flex items-center">
                     <FiUser className="mr-3 text-green-500" size={24} />
                     <dt className="text-sm font-medium text-gray-500 w-24">Age:</dt>
-                    <dd className="text-lg text-gray-900">{user.age}</dd>
+                    <dd className="text-lg text-gray-900">{userData.age}</dd>
                   </div>
                   <div className="flex items-center">
                     <FiUser className="mr-3 text-green-500" size={24} />
                     <dt className="text-sm font-medium text-gray-500 w-24">Gender:</dt>
-                    <dd className="text-lg text-gray-900">{user.gender}</dd>
+                    <dd className="text-lg text-gray-900">{userData.gender}</dd>
                   </div>
                   <div className="flex items-center">
                     <FiMapPin className="mr-3 text-green-500" size={24} />
                     <dt className="text-sm font-medium text-gray-500 w-24">Location:</dt>
-                    <dd className="text-lg text-gray-900">{user.location}</dd>
+                    <dd className="text-lg text-gray-900">{userData.location}</dd>
                   </div>
                   <div className="flex items-center">
                     <FiCalendar className="mr-3 text-green-500" size={24} />
                     <dt className="text-sm font-medium text-gray-500 w-24">Birthdate:</dt>
-                    <dd className="text-lg text-gray-900">{user.birthdate}</dd>
+                    <dd className="text-lg text-gray-900">{userData.birthdate}</dd>
                   </div>
                 </dl>
               </div>
@@ -88,11 +111,15 @@ const Profile = () => {
                       Interests
                     </dt>
                     <dd className="text-lg text-gray-900">
-                      {user.interests.map((interest, index) => (
-                        <span key={index} className="inline-block bg-green-100 text-green-800 rounded-full px-3 py-1 text-sm font-semibold mr-2 mb-2">
-                          {interest}
-                        </span>
-                      ))}
+                      {userData.interests && userData.interests.length > 0 ? (
+                        userData.interests.map((interest: string, index: number) => (
+                          <span key={index} className="inline-block bg-green-100 text-green-800 rounded-full px-3 py-1 text-sm font-semibold mr-2 mb-2">
+                            {interest}
+                          </span>
+                        ))
+                      ) : (
+                        <span>No interests specified</span>
+                      )}
                     </dd>
                   </div>
                   <div>
@@ -100,14 +127,14 @@ const Profile = () => {
                       <FiCalendar className="mr-3 text-green-500" size={24} />
                       Joined AirWatch
                     </dt>
-                    <dd className="text-lg text-gray-900">{user.joinDate}</dd>
+                    <dd className="text-lg text-gray-900">{userData.joinDate}</dd>
                   </div>
                   <div>
                     <dt className="flex items-center text-sm font-medium text-gray-500 mb-2">
                       <FiActivity className="mr-3 text-green-500" size={24} />
                       Last Active
                     </dt>
-                    <dd className="text-lg text-gray-900">{user.lastActive}</dd>
+                    <dd className="text-lg text-gray-900">{userData.lastActive}</dd>
                   </div>
                 </dl>
                 <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-6">Share AirWatch</h2>
@@ -125,13 +152,20 @@ const Profile = () => {
             </div>
           </div>
           
-          <div className="bg-gray-50 px-8 py-6">
+          <div className="bg-gray-50 px-8 py-6 flex justify-end items-center space-x-4">
             <Link
               href="/profile/edit"
               className="inline-flex items-center rounded-md bg-green-600 px-6 py-3 text-base font-medium text-white shadow-sm transition-colors hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
             >
               Edit Profile
             </Link>
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center rounded-md bg-red px-6 py-3 text-base font-medium text-white shadow-sm transition-colors hover:bg-red focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2"
+            >
+              <FiLogOut className="mr-2" />
+              Logout
+            </button>
           </div>
         </div>
       </div>

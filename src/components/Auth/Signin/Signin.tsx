@@ -3,15 +3,27 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import SigninImage from "@/components/Auth/auth.svg";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/components/firebase/firebase";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/navigation";
 
 const Signin: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const router = useRouter();
+  
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // Handle sign-in logic here
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      toast.success("Sign in successful", { position: "top-center" });
+      router.push("/profile");
+    } catch (error) {
+      toast.error("Invalid email or password", { position: "top-center" });
+    }
     console.log("Sign in with:", email, password, rememberMe);
   };
 
@@ -167,6 +179,7 @@ const Signin: React.FC = () => {
           </div>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };

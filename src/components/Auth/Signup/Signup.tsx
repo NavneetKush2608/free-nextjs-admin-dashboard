@@ -3,6 +3,12 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import SignupImage from "@/components/Auth/auth.svg";
+import { FiEye, FiEyeOff } from "react-icons/fi";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "@/components/firebase/firebase";
+import { setDoc, doc } from "firebase/firestore";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Signup: React.FC = () => {
   const [name, setName] = useState("");
@@ -12,11 +18,75 @@ const Signup: React.FC = () => {
   const [age, setAge] = useState("");
   const [gender, setGender] = useState("");
   const [defaultLocation, setDefaultLocation] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Sign up with:", name, email, password, age, gender, defaultLocation);
+    setError("");
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      const user = auth.currentUser;
+      console.log("User created:", user);
+      if (user) {
+        await setDoc(doc(db, "users", user.uid), {
+          name: name,
+          email: email,
+          age: age,
+          gender: gender,
+          defaultLocation: defaultLocation,
+        });
+      }
+      console.log("user registration successful");
+      toast.success("User registration successful");
+    } catch (error: any) {
+      console.error("Error creating user:", error);
+      if (error.code === "auth/email-already-in-use") {
+        setError("This email is already in use. Please use a different email or sign in.");
+        toast.error("This email is already in use. Please use a different email or sign in.");
+      } else {
+        setError("An error occurred during registration. Please try again.");
+        toast.error("An error occurred during registration. Please try again.");
+      }
+    }
   };
+
+  const togglePasswordVisibility = (field: 'password' | 'confirmPassword') => {
+    if (field === 'password') {
+      setShowPassword(!showPassword);
+    } else {
+      setShowConfirmPassword(!showConfirmPassword);
+    }
+  };
+
+  const renderPasswordInput = (
+    id: string,
+    value: string,
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
+    showPassword: boolean,
+    toggleVisibility: () => void
+  ) => (
+    <div className="relative">
+      <input
+        id={id}
+        type={showPassword ? "text" : "password"}
+        value={value}
+        onChange={onChange}
+        placeholder="••••••••"
+        className="bg-gray-50 border-2 border-gray-300 text-gray-800 w-full rounded-lg px-4 py-3 pr-10 transition duration-200 focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-200"
+        required
+      />
+      <button
+        type="button"
+        onClick={toggleVisibility}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+        aria-label={showPassword ? "Hide password" : "Show password"}
+      >
+        {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+      </button>
+    </div>
+  );
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-400 to-blue-500 p-4 sm:p-6 lg:p-8">
@@ -42,6 +112,7 @@ const Signup: React.FC = () => {
           </div>
           <div className="p-8 md:w-1/2">
             <h2 className="text-gray-800 mb-8 text-4xl font-bold">Create Your Account</h2>
+            {error && <p className="text-red-500 mb-4">{error}</p>}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
@@ -72,27 +143,23 @@ const Signup: React.FC = () => {
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                 <div>
                   <label htmlFor="password" className="text-gray-700 mb-2 block text-sm font-medium">Password</label>
-                  <input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="bg-gray-50 border-2 border-gray-300 text-gray-800 w-full rounded-lg px-4 py-3 transition duration-200 focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-200"
-                    required
-                  />
+                  {renderPasswordInput(
+                    "password",
+                    password,
+                    (e) => setPassword(e.target.value),
+                    showPassword,
+                    () => togglePasswordVisibility('password')
+                  )}
                 </div>
                 <div>
                   <label htmlFor="confirmPassword" className="text-gray-700 mb-2 block text-sm font-medium">Confirm Password</label>
-                  <input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="bg-gray-50 border-2 border-gray-300 text-gray-800 w-full rounded-lg px-4 py-3 transition duration-200 focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-200"
-                    required
-                  />
+                  {renderPasswordInput(
+                    "confirmPassword",
+                    confirmPassword,
+                    (e) => setConfirmPassword(e.target.value),
+                    showConfirmPassword,
+                    () => togglePasswordVisibility('confirmPassword')
+                  )}
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
@@ -181,6 +248,7 @@ const Signup: React.FC = () => {
           </div>
         </div>
       </div>
+      <ToastContainer position="top-center" />
     </div>
   );
 };
