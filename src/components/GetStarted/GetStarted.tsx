@@ -6,9 +6,9 @@ import slide2 from './slide2.svg';
 import slide3 from './slide3.svg';
 import { useRouter } from 'next/navigation';
 import { useLocation } from '../contexts/LocationContext';
-import axios from 'axios';
 import { useLocationSearch } from '@/hooks/useLocationSearch';
 import Link from 'next/link';
+import { auth } from "@/components/firebase/firebase";
 
 const GetStarted: React.FC = () => {
   const router = useRouter();
@@ -25,12 +25,10 @@ const GetStarted: React.FC = () => {
       heading: "Control Exposure",
       description: "Manage your exposure to harmful pollutants.",
     },
-
   ];
-  const { setLocation, locationName } = useLocation();
+  const { setLocation } = useLocation();
   const {
     query,
-    setQuery,
     isSearchActive,
     setIsSearchActive,
     results,
@@ -42,6 +40,16 @@ const GetStarted: React.FC = () => {
     handleKeyDown,
     clearInput
   } = useLocationSearch();
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        router.push('/dashboard');
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
 
   const handleLocationSelect = (result: any) => {
     originalHandleLocationSelect(result);
@@ -58,7 +66,7 @@ const GetStarted: React.FC = () => {
       setCurrentIndex((prev) => (prev + 1) % texts.length);
       setIsTransitioning(false);
     }, 300);
-  }, []);
+  }, [texts.length]);
 
   const handlePrev = useCallback(() => {
     setIsTransitioning(true);
@@ -66,7 +74,7 @@ const GetStarted: React.FC = () => {
       setCurrentIndex((prev) => (prev - 1 + texts.length) % texts.length);
       setIsTransitioning(false);
     }, 300);
-  }, []);
+  }, [texts.length]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -167,18 +175,13 @@ const GetStarted: React.FC = () => {
           )}
         </div>
 
-
         {/* Sign up / Sign in - Hidden on mobile, visible on larger screens */}
         <div className="hidden sm:flex items-center space-x-4">
-          <Link href="/auth/signup">
-          <button className="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base text-green-600 border border-green-600 rounded-full hover:bg-green-600 hover:text-white transition duration-300">
+          <Link href="/auth/signup" className="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base text-green-600 border border-green-600 rounded-full hover:bg-green-600 hover:text-white transition duration-300">
             Sign Up
-          </button>
           </Link>
-          <Link href="/auth/signin">
-          <button className="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base text-white bg-green-600 rounded-full hover:bg-green-700 transition duration-300">
+          <Link href="/auth/signin" className="px-3 py-1 sm:px-4 sm:py-2 text-sm sm:text-base text-white bg-green-600 rounded-full hover:bg-green-700 transition duration-300">
             Sign In
-          </button>
           </Link>
         </div>
       </div>
@@ -243,32 +246,28 @@ const GetStarted: React.FC = () => {
               </svg>
             </button>
           </div>
-        {/* Indicators */}
-        <div className="flex justify-center mt-4 space-x-2 mb-4">
-          {texts.map((_, index) => (
-            <div
-              key={index}
-              className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
-                index === currentIndex ? 'bg-green-500 scale-125' : 'bg-green-300'
-              }`}
-            ></div>
-          ))}
-        </div>
-        {/* Sign up / Sign in - Visible only on mobile */}
-        <div className="flex justify-center w-full sm:hidden items-center space-x-4 mt-6">
-          <Link href="/auth/signup">
-            <button className="px-3 py-1 text-sm text-green-600 border border-green-600 rounded-full hover:bg-green-600 hover:text-white transition duration-300">
+          {/* Indicators */}
+          <div className="flex justify-center mt-4 space-x-2 mb-4">
+            {texts.map((_, index) => (
+              <div
+                key={index}
+                className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${
+                  index === currentIndex ? 'bg-green-500 scale-125' : 'bg-green-300'
+                }`}
+              ></div>
+            ))}
+          </div>
+          {/* Sign up / Sign in - Visible only on mobile */}
+          <div className="flex justify-center w-full sm:hidden items-center space-x-4 mt-6">
+            <Link href="/auth/signup" className="px-3 py-1 text-sm text-green-600 border border-green-600 rounded-full hover:bg-green-600 hover:text-white transition duration-300">
               Sign Up
-            </button>
-          </Link>
-          <Link href="/auth/signin">
-            <button className="px-3 py-1 text-sm text-white bg-green-600 rounded-full hover:bg-green-700 transition duration-300">
+            </Link>
+            <Link href="/auth/signin" className="px-3 py-1 text-sm text-white bg-green-600 rounded-full hover:bg-green-700 transition duration-300">
               Sign In
-            </button>
-          </Link>
+            </Link>
+          </div>
         </div>
       </div>
-        </div>
     </div>
   );
 };

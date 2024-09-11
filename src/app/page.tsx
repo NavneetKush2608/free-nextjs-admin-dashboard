@@ -1,13 +1,30 @@
-import { Metadata } from "next";
-import Link from "next/link";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { auth } from "@/components/firebase/firebase";
 import GetStarted from "@/components/GetStarted/GetStarted";
 
-export const metadata: Metadata = {
-  title: "AirWatch - Get Started",
-  description: "Welcome to AirWatch - Air Pollution Monitoring Dashboard",
-};
-
 const Home: React.FC = () => {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        router.push('/dashboard');
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div>
       <GetStarted />
