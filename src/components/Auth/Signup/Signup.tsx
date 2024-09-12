@@ -119,13 +119,13 @@ const Signup: React.FC = () => {
         value={value}
         onChange={onChange}
         placeholder="••••••••"
-        className={`${colorMode === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg px-4 py-3 pr-10 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
+        className={`${colorMode === 'dark' ? 'bg-boxdark text-bodydark border-strokedark' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg px-4 py-3 pr-10 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
         required
       />
       <button
         type="button"
         onClick={toggleVisibility}
-        className={`absolute right-3 top-1/2 -translate-y-1/2 ${colorMode === 'dark' ? 'text-gray-300 hover:text-gray-100' : 'text-gray-500 hover:text-gray-700'} focus:outline-none`}
+        className={`absolute right-3 top-1/2 -translate-y-1/2 ${colorMode === 'dark' ? 'text-bodydark hover:text-white' : 'text-gray-500 hover:text-gray-700'} focus:outline-none`}
         aria-label={showPassword ? "Hide password" : "Show password"}
       >
         {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
@@ -143,60 +143,60 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className={`flex min-h-screen items-center justify-center ${colorMode === 'dark' ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-green-400 to-blue-500'} p-2 sm:p-4 lg:p-6`}>
-      <div className={`w-full max-w-5xl overflow-hidden rounded-3xl ${colorMode === 'dark' ? 'bg-gray-800' : 'bg-white'} shadow-2xl`}>
+    <div className={`flex min-h-screen items-center justify-center bg-gradient-to-br from-green-400 to-blue-500 p-2 sm:p-4 lg:p-6 animate-gradient-x`}>
+      <div className={`w-full max-w-5xl overflow-hidden rounded-3xl ${colorMode === 'dark' ? 'bg-boxdark' : 'bg-white'} shadow-2xl`}>
         <div className="flex flex-col md:flex-row">
-          <div className={`flex flex-col items-center justify-center ${colorMode === 'dark' ? 'bg-gray-700' : 'bg-green-100'} p-6 md:w-1/2`}>
+          <div className={`flex flex-col items-center justify-center ${colorMode === 'dark' ? 'bg-boxdark-2' : 'bg-green-100'} p-6 md:w-1/2`}>
             <Link href="/" className="mb-6 text-center transition-transform hover:scale-105">
               <div className="mb-3 flex items-center">
-                <span className={`${colorMode === 'dark' ? 'text-white' : 'text-gray-800'} text-4xl font-extrabold`}>Air</span>
+                <span className={`${colorMode === 'dark' ? 'text-bodydark' : 'text-gray-800'} text-4xl font-extrabold`}>Air</span>
                 <span className="text-4xl font-extrabold text-green-600">Watch</span>
               </div>
             </Link>
             <Image
               src={SignupImage}
               alt="Signup"
-              width={300}
-              height={300}
-              className="mb-6 transition-transform hover:scale-105"
+              width={200}
+              height={200}
+              className="mb-6 transition-transform hover:scale-105 md:w-[300px] md:h-[300px]"
             />
-            <p className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-600'} max-w-sm text-center text-base font-medium`}>
+            <p className={`${colorMode === 'dark' ? 'text-bodydark' : 'text-gray-600'} max-w-sm text-center text-base font-medium md:text-base`}>
               Join AirWatch today for real-time air quality data and personalized insights.
             </p>
           </div>
           <div className="p-6 md:w-1/2">
-            <h2 className={`${colorMode === 'dark' ? 'text-white' : 'text-gray-800'} mb-6 text-3xl font-bold`}>Create Your Account</h2>
-            {error && <p className="text-red-500 mb-3">{error}</p>}
+            <h2 className={`${colorMode === 'dark' ? 'text-bodydark' : 'text-gray-800'} mb-6 text-3xl font-bold`}>Create Your Account</h2>
+            {error && <p className="text-danger mb-3">{error}</p>}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="name" className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Full Name</label>
+                  <label htmlFor="name" className={`${colorMode === 'dark' ? 'text-bodydark' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Full Name</label>
                   <input
                     id="name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="John Doe"
-                    className={`${colorMode === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
+                    className={`${colorMode === 'dark' ? 'bg-boxdark text-bodydark border-strokedark' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
                     required
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Email Address</label>
+                  <label htmlFor="email" className={`${colorMode === 'dark' ? 'text-bodydark' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Email Address</label>
                   <input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="john@example.com"
-                    className={`${colorMode === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
+                    className={`${colorMode === 'dark' ? 'bg-boxdark text-bodydark border-strokedark' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
                     required
                   />
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="password" className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Password</label>
+                  <label htmlFor="password" className={`${colorMode === 'dark' ? 'text-bodydark' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Password</label>
                   {renderPasswordInput(
                     "password",
                     password,
@@ -206,7 +206,7 @@ const Signup: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <label htmlFor="confirmPassword" className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Confirm Password</label>
+                  <label htmlFor="confirmPassword" className={`${colorMode === 'dark' ? 'text-bodydark' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Confirm Password</label>
                   {renderPasswordInput(
                     "confirmPassword",
                     confirmPassword,
@@ -218,23 +218,23 @@ const Signup: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="dob" className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Date of Birth</label>
+                  <label htmlFor="dob" className={`${colorMode === 'dark' ? 'text-bodydark' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Date of Birth</label>
                   <input
                     id="dob"
                     type="date"
                     value={dob}
                     onChange={(e) => setDob(e.target.value)}
-                    className={`${colorMode === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
+                    className={`${colorMode === 'dark' ? 'bg-boxdark text-bodydark border-strokedark' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
                     required
                   />
                 </div>
                 <div>
-                  <label htmlFor="gender" className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Gender</label>
+                  <label htmlFor="gender" className={`${colorMode === 'dark' ? 'text-bodydark' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Gender</label>
                   <select
                     id="gender"
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
-                    className={`${colorMode === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
+                    className={`${colorMode === 'dark' ? 'bg-boxdark text-bodydark border-strokedark' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
                     required
                   >
                     <option value="">Select</option>
@@ -246,7 +246,7 @@ const Signup: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label htmlFor="defaultLocation" className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Default Location</label>
+                <label htmlFor="defaultLocation" className={`${colorMode === 'dark' ? 'text-bodydark' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Default Location</label>
                 <div className="relative" ref={locationDropdownRef}>
                   <div className="relative">
                     <input
@@ -257,24 +257,24 @@ const Signup: React.FC = () => {
                       onKeyDown={handleKeyDown}
                       onFocus={() => setIsSearchActive(true)}
                       placeholder="Search for a location"
-                      className={`${colorMode === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg pl-8 pr-3 py-2 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
+                      className={`${colorMode === 'dark' ? 'bg-boxdark text-bodydark border-strokedark' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg pl-8 pr-3 py-2 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
                       required
                     />
-                    <FiMapPin className={`absolute left-2 top-1/2 -translate-y-1/2 ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} size={16} />
+                    <FiMapPin className={`absolute left-2 top-1/2 -translate-y-1/2 ${colorMode === 'dark' ? 'text-bodydark' : 'text-gray-400'}`} size={16} />
                   </div>
                   {isSearchActive && results.length > 0 && (
-                    <div className={`absolute z-10 mt-1 w-full ${colorMode === 'dark' ? 'bg-gray-700' : 'bg-white'} rounded-md shadow-lg max-h-48 overflow-y-auto`}>
+                    <div className={`absolute z-10 mt-1 w-full ${colorMode === 'dark' ? 'bg-boxdark' : 'bg-white'} rounded-md shadow-lg max-h-48 overflow-y-auto`}>
                       {results.map((result: any, index: number) => (
                         <div
                           key={index}
-                          className={`cursor-pointer px-3 py-2 ${colorMode === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-100'} ${
-                            index === activeIndex ? (colorMode === 'dark' ? 'bg-gray-600' : 'bg-gray-100') : ''
+                          className={`cursor-pointer px-3 py-2 ${colorMode === 'dark' ? 'hover:bg-boxdark-2' : 'hover:bg-gray-100'} ${
+                            index === activeIndex ? (colorMode === 'dark' ? 'bg-boxdark-2' : 'bg-gray-100') : ''
                           }`}
                           onClick={() => handleLocationSelection(result)}
                         >
                           <div className="flex items-center">
-                            <FiMapPin className={`mr-2 ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} size={14} />
-                            <span className={colorMode === 'dark' ? 'text-white' : ''}>{result.properties.formatted}</span>
+                            <FiMapPin className={`mr-2 ${colorMode === 'dark' ? 'text-bodydark' : 'text-gray-400'}`} size={14} />
+                            <span className={colorMode === 'dark' ? 'text-bodydark' : ''}>{result.properties.formatted}</span>
                           </div>
                         </div>
                       ))}
@@ -295,11 +295,11 @@ const Signup: React.FC = () => {
                   <div className="border-gray-300 w-full border-t"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="text-gray-500 bg-white px-2">Or sign up with</span>
+                  <span className={`${colorMode === 'dark' ? 'text-bodydark bg-boxdark' : 'text-gray bg-white'} px-2`}>Or sign up with</span>
                 </div>
               </div>
               <div className="mt-3">
-                <button className="border-gray-300 text-gray-700 hover:bg-gray-50 flex w-full items-center justify-center rounded-lg border bg-white px-3 py-2 text-sm font-medium shadow-sm transition duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                <button className="border-gray-300 text-black hover:bg-gray-50 flex w-full items-center justify-center rounded-lg border bg-white px-3 py-2 text-sm font-medium shadow-sm transition duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
                   <svg className="mr-2 h-4 w-4" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clipPath="url(#clip0)">
                       <path d="M20.3081 10.2303C20.3081 9.55056 20.253 8.86711 20.1354 8.19836H10.7031V12.0492H16.1046C15.8804 13.2911 15.1602 14.3898 14.1057 15.0879V17.5866H17.3282C19.2205 15.8449 20.3081 13.2728 20.3081 10.2303Z" fill="#3F83F8"/>
