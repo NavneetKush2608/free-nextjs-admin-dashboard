@@ -5,7 +5,7 @@ import Breadcrumb from "@/components/Breadcrumbs/Breadcrumb";
 import Image from "next/image";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Link from "next/link";
-import { FiShare2, FiMapPin, FiCalendar, FiUser, FiHeart, FiActivity, FiLogOut, FiEdit2 } from 'react-icons/fi';
+import { FiShare2, FiMapPin, FiCalendar, FiUser, FiHeart, FiActivity, FiLogOut, FiEdit2, FiSun, FiMoon } from 'react-icons/fi';
 import useColorMode from "@/hooks/useColorMode";
 import { auth, db } from "@/components/firebase/firebase";
 import { doc, getDoc } from "firebase/firestore";
@@ -16,7 +16,7 @@ const Profile = () => {
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<any>(null);
   const router = useRouter();
-  const [colorMode] = useColorMode();
+  const [colorMode, setColorMode] = useColorMode() as [string, (value: string) => void];
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
@@ -58,20 +58,24 @@ const Profile = () => {
     }
   };
 
+  const toggleColorMode = () => {
+    setColorMode(colorMode === 'light' ? 'dark' : 'light');
+  };
+
   if (!user || !userData) {
     return <div>Loading...</div>;
   }
 
   return (
     <DefaultLayout>
-      <div className={`mx-auto max-w-4xl ${colorMode === 'dark' ? 'dark:bg-gray-900 dark:text-white' : ''}`}>
+      <div className={`mx-auto max-w-4xl ${colorMode === 'dark' ? 'dark:bg-gray-900 dark:text-white' : 'text-black'}`}>
         <Breadcrumb pageName="Profile" />
         
-        <div className="overflow-hidden rounded-lg bg-white shadow">
+        <div className={`overflow-hidden rounded-lg ${colorMode === 'dark' ? 'bg-gray-800' : 'bg-white'} shadow`}>
           <div className="relative h-64 bg-gradient-to-r from-green-400 to-blue-500">
             <div className="absolute top-0 right-0 p-4 flex space-x-2">
               <button
-                className="rounded-full bg-white p-3 text-green-600 shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 group relative"
+                className={`rounded-full ${colorMode === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-green-600'} p-3 shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 group relative`}
                 aria-label="Edit Profile"
               >
                 <FiEdit2 size={24} />
@@ -80,7 +84,7 @@ const Profile = () => {
                 </span>
               </button>
               <button
-                className="rounded-full bg-white p-3 text-green-600 shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 group relative"
+                className={`rounded-full ${colorMode === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-green-600'} p-3 shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 group relative`}
                 aria-label="Share Profile"
               >
                 <FiShare2 size={24} />
@@ -89,8 +93,18 @@ const Profile = () => {
                 </span>
               </button>
               <button
+                onClick={toggleColorMode}
+                className={`rounded-full ${colorMode === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-green-600'} p-3 shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 group relative`}
+                aria-label="Toggle Color Mode"
+              >
+                {colorMode === 'dark' ? <FiSun size={24} /> : <FiMoon size={24} />}
+                <span className="absolute top-full left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  Toggle Color Mode
+                </span>
+              </button>
+              <button
                 onClick={handleLogout}
-                className="rounded-full bg-white p-3 text-red-600 shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 group relative"
+                className={`rounded-full ${colorMode === 'dark' ? 'bg-gray-800 text-red-500' : 'bg-white text-red-600'} p-3 shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 group relative`}
                 aria-label="Logout"
               >
                 <FiLogOut size={24} />
@@ -119,30 +133,30 @@ const Profile = () => {
           <div className="p-8">
             <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
               <div>
-                <h2 className="text-2xl font-semibold text-gray-900 mb-6">Personal Information</h2>
+                <h2 className={`text-2xl font-semibold ${colorMode === 'dark' ? 'text-white' : 'text-black'} mb-6`}>Personal Information</h2>
                 <dl className="space-y-6">
                   <div className="flex items-center">
                     <FiUser className="mr-3 text-green-500" size={24} />
-                    <dt className="text-sm font-medium text-gray-500 w-24">Age:</dt>
-                    <dd className="text-lg text-gray-900">{userData.age}</dd>
+                    <dt className={`text-sm font-medium ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} w-24`}>Age:</dt>
+                    <dd className={`text-lg ${colorMode === 'dark' ? 'text-white' : 'text-black'}`}>{userData.age}</dd>
                   </div>
                   <div className="flex items-center">
                     <FiUser className="mr-3 text-green-500" size={24} />
-                    <dt className="text-sm font-medium text-gray-500 w-24">Gender:</dt>
-                    <dd className="text-lg text-gray-900">{userData.gender}</dd>
+                    <dt className={`text-sm font-medium ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} w-24`}>Gender:</dt>
+                    <dd className={`text-lg ${colorMode === 'dark' ? 'text-white' : 'text-black'}`}>{userData.gender}</dd>
                   </div>
                   <div className="flex items-center">
                     <FiMapPin className="mr-3 text-green-500" size={24} />
-                    <dt className="text-sm font-medium text-gray-500 w-24">Location:</dt>
-                    <dd className="text-lg text-gray-900">{userData.defaultLocation}</dd>
+                    <dt className={`text-sm font-medium ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} w-24`}>Location:</dt>
+                    <dd className={`text-lg ${colorMode === 'dark' ? 'text-white' : 'text-black'}`}>{userData.defaultLocation}</dd>
                   </div>
                   <div className="flex items-center">
                     <FiCalendar className="mr-3 text-green-500" size={24} />
-                    <dt className="text-sm font-medium text-gray-500 w-24">Birthdate:</dt>
-                    <dd className="text-lg text-gray-900">{new Date(userData.dob).toLocaleDateString()}</dd>
+                    <dt className={`text-sm font-medium ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} w-24`}>Birthdate:</dt>
+                    <dd className={`text-lg ${colorMode === 'dark' ? 'text-white' : 'text-black'}`}>{new Date(userData.dob).toLocaleDateString()}</dd>
                   </div>
                 </dl>
-                <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-6">Share AirWatch</h2>
+                <h2 className={`text-2xl font-semibold ${colorMode === 'dark' ? 'text-white' : 'text-black'} mt-8 mb-6`}>Share AirWatch</h2>
                 <div className="flex flex-col items-center justify-center space-y-4">
                   <Image
                     src="/path/to/qr-code.png" // Replace with actual QR code image
@@ -151,21 +165,21 @@ const Profile = () => {
                     height={200}
                     className="rounded-lg shadow-md"
                   />
-                  <p className="text-sm text-gray-600">Scan this QR code to join AirWatch</p>
+                  <p className={`text-sm ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-600'}`}>Scan this QR code to join AirWatch</p>
                 </div>
               </div>
               <div>
-                <h2 className="text-2xl font-semibold text-gray-900 mb-6">Additional Information</h2>
+                <h2 className={`text-2xl font-semibold ${colorMode === 'dark' ? 'text-white' : 'text-black'} mb-6`}>Additional Information</h2>
                 <dl className="space-y-6">
                   <div>
-                    <dt className="flex items-center text-sm font-medium text-gray-500 mb-2">
+                    <dt className={`flex items-center text-sm font-medium ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} mb-2`}>
                       <FiHeart className="mr-3 text-green-500" size={24} />
                       Interests
                     </dt>
-                    <dd className="text-lg text-gray-900">
+                    <dd className={`text-lg ${colorMode === 'dark' ? 'text-white' : 'text-black'}`}>
                       {userData.interests && userData.interests.length > 0 ? (
                         userData.interests.slice(0, 5).map((interest: string, index: number) => (
-                          <span key={index} className="inline-block bg-green-100 text-green-800 rounded-full px-3 py-1 text-sm font-semibold mr-2 mb-2">
+                          <span key={index} className={`inline-block ${colorMode === 'dark' ? 'bg-green-800 text-green-200' : 'bg-green-100 text-green-800'} rounded-full px-3 py-1 text-sm font-semibold mr-2 mb-2`}>
                             {interest}
                           </span>
                         ))
@@ -175,18 +189,18 @@ const Profile = () => {
                     </dd>
                   </div>
                   <div>
-                    <dt className="flex items-center text-sm font-medium text-gray-500 mb-2">
+                    <dt className={`flex items-center text-sm font-medium ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} mb-2`}>
                       <FiCalendar className="mr-3 text-green-500" size={24} />
                       Joined AirWatch
                     </dt>
-                    <dd className="text-lg text-gray-900">{new Date(userData.joinedDate).toLocaleDateString()}</dd>
+                    <dd className={`text-lg ${colorMode === 'dark' ? 'text-white' : 'text-black'}`}>{new Date(userData.joinedDate).toLocaleDateString()}</dd>
                   </div>
                   <div>
-                    <dt className="flex items-center text-sm font-medium text-gray-500 mb-2">
+                    <dt className={`flex items-center text-sm font-medium ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} mb-2`}>
                       <FiActivity className="mr-3 text-green-500" size={24} />
                       Last Active
                     </dt>
-                    <dd className="text-lg text-gray-900">{userData.lastActive}</dd>
+                    <dd className={`text-lg ${colorMode === 'dark' ? 'text-white' : 'text-black'}`}>{userData.lastActive}</dd>
                   </div>
                 </dl>
               </div>

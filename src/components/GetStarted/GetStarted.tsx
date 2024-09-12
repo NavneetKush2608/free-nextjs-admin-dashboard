@@ -84,12 +84,12 @@ const GetStarted: React.FC = () => {
   }, [handleNext]);
 
   return (
-    <div className={`flex flex-col min-h-screen ${colorMode === 'dark' ? 'bg-gray-900 text-white' : 'bg-[#FEFEFE]'} relative`}>
+    <div className={`flex flex-col min-h-screen ${colorMode === 'dark' ? 'bg-boxdark text-bodydark' : 'bg-whiten text-black'} relative`}>
       {/* Header */}
-      <div className="w-full flex flex-col sm:flex-row justify-between items-center p-4 sm:p-10 bg-white">
+      <div className={`w-full flex flex-col sm:flex-row justify-between items-center p-4 sm:p-10 ${colorMode === 'dark' ? 'bg-boxdark' : 'bg-whiten'}`}>
         {/* Logo */}
         <div className="flex items-center mb-4 sm:mb-0">
-          <span className="text-3xl sm:text-2xl font-extrabold text-gray-800">Air</span>
+          <span className={`text-3xl sm:text-2xl font-extrabold ${colorMode === 'dark' ? 'text-bodydark' : 'text-gray-800'}`}>Air</span>
           <span className="text-3xl sm:text-2xl font-extrabold text-green-600">Watch</span>
         </div>
 
@@ -100,7 +100,7 @@ const GetStarted: React.FC = () => {
               ref={inputRef}
               type="text"
               placeholder="Search location..."
-              className="w-full bg-gray-100 border-2 border-green-500 rounded-full pl-10 pr-4 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              className={`w-full ${colorMode === 'dark' ? 'bg-boxdark-2 text-bodydark' : 'bg-gray-100 text-black'} border-2 border-green-500 rounded-full pl-10 pr-4 py-2 font-medium focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent`}
               value={query}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
@@ -156,16 +156,18 @@ const GetStarted: React.FC = () => {
             )}
           </div>
           {isSearchActive && results.length > 0 && (
-            <div className="absolute z-10 mt-2 w-full max-w-md rounded-md bg-white shadow-lg">
+            <div className={`absolute z-10 mt-2 w-full max-w-md rounded-md ${colorMode === 'dark' ? 'bg-boxdark' : 'bg-white'} shadow-lg`}>
               {results.map((result: any, index: number) => (
                 <div
                   key={index}
-                  className={`cursor-pointer px-4 py-2 transition-colors duration-150 ease-in-out hover:bg-gray-100 ${
-                    index === activeIndex ? "bg-gray-100" : ""
+                  className={`cursor-pointer px-4 py-2 transition-colors duration-150 ease-in-out ${
+                    colorMode === 'dark' ? 'hover:bg-boxdark-2' : 'hover:bg-gray-100'
+                  } ${
+                    index === activeIndex ? (colorMode === 'dark' ? 'bg-boxdark-2' : 'bg-gray-100') : ''
                   }`}
                   onClick={() => handleLocationSelect(result)}
                 >
-                  <p className="text-sm text-gray-700">
+                  <p className={`text-sm ${colorMode === 'dark' ? 'text-bodydark' : 'text-gray-700'}`}>
                     {result.properties.formatted}
                   </p>
                 </div>
@@ -186,7 +188,7 @@ const GetStarted: React.FC = () => {
       </div>
 
       {/* Main content */}
-      <div className="flex-grow flex flex-col items-center justify-center w-full max-w-6xl mx-auto mt-4 sm:mt-8 px-4 sm:px-0">
+      <div className={`flex-grow flex flex-col items-center justify-center w-full max-w-6xl mx-auto mt-4 sm:mt-8 px-4 sm:px-0 ${colorMode === 'dark' ? 'bg-boxdark' : 'bg-whiten'}`}>
         {/* Mobile Slider */}
         <div className="md:hidden w-full mb-6 sm:mb-8 overflow-hidden rounded-lg">
           <div className="relative w-full h-64">
@@ -222,7 +224,7 @@ const GetStarted: React.FC = () => {
           <h2 className={`text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold mb-2 text-green-700 transition-opacity duration-300 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
             {texts[currentIndex].heading}
           </h2>
-          <div className={`flex justify-center items-center text-sm sm:text-base md:text-lg lg:text-xl text-black mb-12 sm:mb-8 transition-opacity duration-300 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+          <div className={`flex justify-center items-center text-sm sm:text-base md:text-lg lg:text-xl ${colorMode === 'dark' ? 'text-bodydark' : 'text-black'} mb-12 sm:mb-8 transition-opacity duration-300 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
             <div className='w-60 h-10 text-center'>{texts[currentIndex].description}</div>
           </div>
           <div className="flex justify-between items-center absolute w-full left-0 top-1/2 transform -translate-y-1/2 px-2 sm:px-4">
