@@ -12,21 +12,7 @@ import { Feature } from 'ol';
 import Point from 'ol/geom/Point';
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
-
-interface MapOneProps {
-  lat: number | null;
-  lng: number | null;
-}
-
-interface AQIData {
-  lat: number;
-  lon: number;
-  aqi: number;
-  uid: string;
-  station: {
-    name: string;
-  };
-}
+import { useLocation } from '@/components/contexts/LocationContext';
 
 const getAqiColor = (aqi: number): string => {
   if (aqi <= 50) return 'green';
@@ -37,14 +23,29 @@ const getAqiColor = (aqi: number): string => {
   return 'maroon';
 };
 
-const MapOne: React.FC<MapOneProps> = ({ lat, lng }) => {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<Map | null>(null);
+const MapOne: React.FC = () => {
+  const { lat, lng } = useLocation();
   const [aqi, setAqi] = useState<number | null>(null);
+  const mapRef = useRef<Map | null>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
   const markerLayerRef = useRef<VectorLayer<VectorSource> | null>(null);
 
+  const fetchAqiData = useCallback(async () => {
+    if (lat === null || lng === null) return;
+
+    try {
+      const response = await axios.get(
+        `https://api.waqi.info/feed/geo:${lat};${lng}/?token=${process.env.NEXT_PUBLIC_WAQI_TOKEN}`
+      );
+      const aqiData = response.data.data.aqi;
+      setAqi(aqiData);
+    } catch (error) {
+      console.error('Error fetching AQI data:', error);
+    }
+  }, [lat, lng]);
+
   const initializeMap = useCallback(() => {
-    if (!mapContainerRef.current) return;
+    if (!mapContainerRef.current || mapRef.current) return;
 
     const initialMap = new Map({
       target: mapContainerRef.current,
@@ -94,34 +95,12 @@ const MapOne: React.FC<MapOneProps> = ({ lat, lng }) => {
     markerLayerRef.current = markerLayer;
   }, [lat, lng, aqi]);
 
-  const fetchAqiData = useCallback(async () => {
-    if (lat === null || lng === null) return;
-
-    try {
-      const response = await axios.get(
-        `https://api.waqi.info/feed/geo:${lat};${lng}/?token=57b74b070c5f096f0f45fc49954843db05043616`
-      );
-      const aqiData = response.data.data.aqi;
-      setAqi(aqiData);
-    } catch (error) {
-      console.error('Error fetching AQI data:', error);
-    }
-  }, [lat, lng]);
-
   useEffect(() => {
     initializeMap();
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.setTarget(undefined);
-        mapRef.current = null;
-      }
-    };
   }, [initializeMap]);
 
   useEffect(() => {
-    if (mapRef.current && lat !== null && lng !== null) {
-      mapRef.current.getView().setCenter(fromLonLat([lng, lat]));
-      mapRef.current.getView().setZoom(13);
+    if (lat !== null && lng !== null) {
       fetchAqiData();
     }
   }, [lat, lng, fetchAqiData]);
@@ -130,8 +109,14 @@ const MapOne: React.FC<MapOneProps> = ({ lat, lng }) => {
     updateMarker();
   }, [updateMarker]);
 
+  useEffect(() => {
+    if (mapRef.current && lat !== null && lng !== null) {
+      mapRef.current.getView().setCenter(fromLonLat([lng, lat]));
+    }
+  }, [lat, lng]);
+
   if (lat === null || lng === null) {
-    return <div>No location selected</div>;
+    return <div>Please select a location or sign in to view the map.</div>;
   }
 
   return (

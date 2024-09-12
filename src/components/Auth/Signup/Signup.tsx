@@ -12,6 +12,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { useLocation } from '@/components/contexts/LocationContext';
 import { useLocationSearch } from '@/hooks/useLocationSearch';
 import { useRouter } from 'next/navigation';
+import useColorMode from "@/hooks/useColorMode";
+
 const Signup: React.FC = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -25,6 +27,7 @@ const Signup: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
+  const [colorMode] = useColorMode();
   const router = useRouter();
   
   const { setLocation } = useLocation();
@@ -60,22 +63,26 @@ const Signup: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      toast.error("Passwords do not match");
+      return;
+    }
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      const user = auth.currentUser;
-      console.log("User created:", user);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
       if (user) {
         await setDoc(doc(db, "users", user.uid), {
-          name: name,
-          email: email,
-          dob: dob,
-          gender: gender,
-          defaultLocation: defaultLocation,
-          latitude: latitude,
-          longitude: longitude,
+          name,
+          email,
+          dob,
+          gender,
+          defaultLocation,
+          latitude,
+          longitude,
+          joinedDate: new Date().toISOString(),
         });
       }
-      console.log("user registration successful");
       toast.success("User registration successful");
       router.push("/auth/signin");
     } catch (error: any) {
@@ -112,13 +119,13 @@ const Signup: React.FC = () => {
         value={value}
         onChange={onChange}
         placeholder="••••••••"
-        className="bg-gray-50 border-2 border-gray-300 text-gray-800 w-full rounded-lg px-4 py-3 pr-10 transition duration-200 focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-200"
+        className={`${colorMode === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg px-4 py-3 pr-10 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
         required
       />
       <button
         type="button"
         onClick={toggleVisibility}
-        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
+        className={`absolute right-3 top-1/2 -translate-y-1/2 ${colorMode === 'dark' ? 'text-gray-300 hover:text-gray-100' : 'text-gray-500 hover:text-gray-700'} focus:outline-none`}
         aria-label={showPassword ? "Hide password" : "Show password"}
       >
         {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
@@ -136,13 +143,13 @@ const Signup: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-400 to-blue-500 p-2 sm:p-4 lg:p-6">
-      <div className="w-full max-w-5xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+    <div className={`flex min-h-screen items-center justify-center ${colorMode === 'dark' ? 'bg-gradient-to-br from-gray-900 to-gray-800' : 'bg-gradient-to-br from-green-400 to-blue-500'} p-2 sm:p-4 lg:p-6`}>
+      <div className={`w-full max-w-5xl overflow-hidden rounded-3xl ${colorMode === 'dark' ? 'bg-gray-800' : 'bg-white'} shadow-2xl`}>
         <div className="flex flex-col md:flex-row">
-          <div className="flex flex-col items-center justify-center bg-green-100 p-6 md:w-1/2">
+          <div className={`flex flex-col items-center justify-center ${colorMode === 'dark' ? 'bg-gray-700' : 'bg-green-100'} p-6 md:w-1/2`}>
             <Link href="/" className="mb-6 text-center transition-transform hover:scale-105">
               <div className="mb-3 flex items-center">
-                <span className="text-gray-800 text-4xl font-extrabold">Air</span>
+                <span className={`${colorMode === 'dark' ? 'text-white' : 'text-gray-800'} text-4xl font-extrabold`}>Air</span>
                 <span className="text-4xl font-extrabold text-green-600">Watch</span>
               </div>
             </Link>
@@ -153,43 +160,43 @@ const Signup: React.FC = () => {
               height={300}
               className="mb-6 transition-transform hover:scale-105"
             />
-            <p className="text-gray-600 max-w-sm text-center text-base font-medium">
+            <p className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-600'} max-w-sm text-center text-base font-medium`}>
               Join AirWatch today for real-time air quality data and personalized insights.
             </p>
           </div>
           <div className="p-6 md:w-1/2">
-            <h2 className="text-gray-800 mb-6 text-3xl font-bold">Create Your Account</h2>
+            <h2 className={`${colorMode === 'dark' ? 'text-white' : 'text-gray-800'} mb-6 text-3xl font-bold`}>Create Your Account</h2>
             {error && <p className="text-red-500 mb-3">{error}</p>}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="name" className="text-gray-700 mb-1 block text-sm font-medium">Full Name</label>
+                  <label htmlFor="name" className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Full Name</label>
                   <input
                     id="name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="John Doe"
-                    className="bg-gray-50 border-2 border-gray-300 text-gray-800 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-200"
+                    className={`${colorMode === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
                     required
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className="text-gray-700 mb-1 block text-sm font-medium">Email Address</label>
+                  <label htmlFor="email" className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Email Address</label>
                   <input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="john@example.com"
-                    className="bg-gray-50 border-2 border-gray-300 text-gray-800 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-200"
+                    className={`${colorMode === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
                     required
                   />
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="password" className="text-gray-700 mb-1 block text-sm font-medium">Password</label>
+                  <label htmlFor="password" className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Password</label>
                   {renderPasswordInput(
                     "password",
                     password,
@@ -199,7 +206,7 @@ const Signup: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <label htmlFor="confirmPassword" className="text-gray-700 mb-1 block text-sm font-medium">Confirm Password</label>
+                  <label htmlFor="confirmPassword" className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Confirm Password</label>
                   {renderPasswordInput(
                     "confirmPassword",
                     confirmPassword,
@@ -211,23 +218,23 @@ const Signup: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="dob" className="text-gray-700 mb-1 block text-sm font-medium">Date of Birth</label>
+                  <label htmlFor="dob" className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Date of Birth</label>
                   <input
                     id="dob"
                     type="date"
                     value={dob}
                     onChange={(e) => setDob(e.target.value)}
-                    className="bg-gray-50 border-2 border-gray-300 text-gray-800 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-200"
+                    className={`${colorMode === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
                     required
                   />
                 </div>
                 <div>
-                  <label htmlFor="gender" className="text-gray-700 mb-1 block text-sm font-medium">Gender</label>
+                  <label htmlFor="gender" className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Gender</label>
                   <select
                     id="gender"
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
-                    className="bg-gray-50 border-2 border-gray-300 text-gray-800 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-200"
+                    className={`${colorMode === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg px-3 py-2 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
                     required
                   >
                     <option value="">Select</option>
@@ -239,7 +246,7 @@ const Signup: React.FC = () => {
                 </div>
               </div>
               <div>
-                <label htmlFor="defaultLocation" className="text-gray-700 mb-1 block text-sm font-medium">Default Location</label>
+                <label htmlFor="defaultLocation" className={`${colorMode === 'dark' ? 'text-gray-200' : 'text-gray-700'} mb-1 block text-sm font-medium`}>Default Location</label>
                 <div className="relative" ref={locationDropdownRef}>
                   <div className="relative">
                     <input
@@ -250,24 +257,24 @@ const Signup: React.FC = () => {
                       onKeyDown={handleKeyDown}
                       onFocus={() => setIsSearchActive(true)}
                       placeholder="Search for a location"
-                      className="bg-gray-50 border-2 border-gray-300 text-gray-800 w-full rounded-lg pl-8 pr-3 py-2 transition duration-200 focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-200"
+                      className={`${colorMode === 'dark' ? 'bg-gray-700 text-white border-gray-600' : 'bg-gray-50 text-gray-800 border-gray-300'} border-2 w-full rounded-lg pl-8 pr-3 py-2 transition duration-200 focus:border-green-500 focus:ring-2 focus:ring-green-200`}
                       required
                     />
-                    <FiMapPin className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                    <FiMapPin className={`absolute left-2 top-1/2 -translate-y-1/2 ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} size={16} />
                   </div>
                   {isSearchActive && results.length > 0 && (
-                    <div className="absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg max-h-48 overflow-y-auto">
+                    <div className={`absolute z-10 mt-1 w-full ${colorMode === 'dark' ? 'bg-gray-700' : 'bg-white'} rounded-md shadow-lg max-h-48 overflow-y-auto`}>
                       {results.map((result: any, index: number) => (
                         <div
                           key={index}
-                          className={`cursor-pointer px-3 py-2 hover:bg-gray-100 ${
-                            index === activeIndex ? "bg-gray-100" : ""
+                          className={`cursor-pointer px-3 py-2 ${colorMode === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-100'} ${
+                            index === activeIndex ? (colorMode === 'dark' ? 'bg-gray-600' : 'bg-gray-100') : ''
                           }`}
                           onClick={() => handleLocationSelection(result)}
                         >
                           <div className="flex items-center">
-                            <FiMapPin className="mr-2 text-gray-400" size={14} />
-                            <span>{result.properties.formatted}</span>
+                            <FiMapPin className={`mr-2 ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-400'}`} size={14} />
+                            <span className={colorMode === 'dark' ? 'text-white' : ''}>{result.properties.formatted}</span>
                           </div>
                         </div>
                       ))}

@@ -9,9 +9,12 @@ import { useLocation } from '../contexts/LocationContext';
 import { useLocationSearch } from '@/hooks/useLocationSearch';
 import Link from 'next/link';
 import { auth } from "@/components/firebase/firebase";
+import useColorMode from "@/hooks/useColorMode";
 
 const GetStarted: React.FC = () => {
+  const { lat, lng, locationName } = useLocation();
   const router = useRouter();
+  const [colorMode] = useColorMode();
   const texts = [
     {
       heading: "Breath Better",
@@ -42,14 +45,10 @@ const GetStarted: React.FC = () => {
   } = useLocationSearch();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        router.push('/dashboard');
-      }
-    });
-
-    return () => unsubscribe();
-  }, [router]);
+    if (lat !== null && lng !== null) {
+      router.push('/dashboard');
+    }
+  }, [lat, lng, router]);
 
   const handleLocationSelect = (result: any) => {
     originalHandleLocationSelect(result);
@@ -85,7 +84,7 @@ const GetStarted: React.FC = () => {
   }, [handleNext]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#FEFEFE] relative">
+    <div className={`flex flex-col min-h-screen ${colorMode === 'dark' ? 'bg-gray-900 text-white' : 'bg-[#FEFEFE]'} relative`}>
       {/* Header */}
       <div className="w-full flex flex-col sm:flex-row justify-between items-center p-4 sm:p-10 bg-white">
         {/* Logo */}
