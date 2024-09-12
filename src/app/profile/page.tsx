@@ -96,14 +96,14 @@ const Profile = () => {
         <Breadcrumb pageName="Profile" />
         
         <div className={`overflow-hidden rounded-lg ${colorMode === 'dark' ? 'bg-gray-800' : 'bg-white'} shadow`}>
-          <div className="relative h-64 sm:h-80 bg-gradient-to-r from-green-400 to-blue-500">
-            <div className="absolute top-0 right-0 p-2 sm:p-4 flex flex-wrap justify-end">
+          <div className="relative h-48 sm:h-68 bg-gradient-to-r from-green-400 to-blue-500">
+            <div className="absolute top-0 right-0 p-2 sm:p-4 flex flex-col sm:flex-row items-end sm:items-center z-10">
               <button
                 className={`rounded-full ${colorMode === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-green-600'} p-2 sm:p-3 shadow-lg transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 group relative m-1`}
                 aria-label="Edit Profile"
               >
                 <DynamicFiEdit2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="absolute top-full left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                <span className="absolute right-full top-1/2 transform -translate-y-1/2 bg-black text-white text-xs rounded py-1 px-2 mr-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                   Edit Profile
                 </span>
               </button>
@@ -112,7 +112,7 @@ const Profile = () => {
                 aria-label="Share Profile"
               >
                 <DynamicFiShare2 className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="absolute top-full left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                <span className="absolute right-full top-1/2 transform -translate-y-1/2 bg-black text-white text-xs rounded py-1 px-2 mr-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                   Share Profile
                 </span>
               </button>
@@ -122,7 +122,7 @@ const Profile = () => {
                 aria-label="Toggle Color Mode"
               >
                 {colorMode === 'dark' ? <DynamicFiSun className="w-4 h-4 sm:w-5 sm:h-5" /> : <DynamicFiMoon className="w-4 h-4 sm:w-5 sm:h-5" />}
-                <span className="absolute top-full left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                <span className="absolute right-full top-1/2 transform -translate-y-1/2 bg-black text-white text-xs rounded py-1 px-2 mr-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                   Toggle Color Mode
                 </span>
               </button>
@@ -132,14 +132,14 @@ const Profile = () => {
                 aria-label="Logout"
               >
                 <DynamicFiLogOut className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="absolute top-full left-1/2 transform -translate-x-1/2 bg-black text-white text-xs rounded py-1 px-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                <span className="absolute right-full top-1/2 transform -translate-y-1/2 bg-black text-white text-xs rounded py-1 px-2 mr-2 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
                   Logout
                 </span>
               </button>
             </div>
             <div className="absolute bottom-0 left-0 right-0 flex flex-col sm:flex-row items-center sm:items-end p-4 sm:p-6">
               <Image
-                src={userData.avatar || "/default-avatar.png"}
+                src={userData.avatar || user.photoURL || "/default-avatar.png"}
                 alt={userData.name}
                 width={120}
                 height={120}
