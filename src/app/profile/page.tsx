@@ -8,10 +8,11 @@ import Link from "next/link";
 import { FiShare2, FiMapPin, FiCalendar, FiUser, FiHeart, FiActivity, FiLogOut, FiEdit2, FiSun, FiMoon } from 'react-icons/fi';
 import useColorMode from "@/hooks/useColorMode";
 import { auth, db } from "@/components/firebase/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { User, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import dynamic from 'next/dynamic';
+import { motion } from 'framer-motion';
 
 const DynamicFiShare2 = dynamic(() => import('react-icons/fi').then((mod) => mod.FiShare2), { ssr: false });
 const DynamicFiEdit2 = dynamic(() => import('react-icons/fi').then((mod) => mod.FiEdit2), { ssr: false });
@@ -24,10 +25,15 @@ const DynamicFiCalendar = dynamic(() => import('react-icons/fi').then((mod) => m
 const DynamicFiHeart = dynamic(() => import('react-icons/fi').then((mod) => mod.FiHeart), { ssr: false });
 const DynamicFiActivity = dynamic(() => import('react-icons/fi').then((mod) => mod.FiActivity), { ssr: false });
 
+const isUserDataComplete = (data: any) => {
+  return data && data.dob && data.gender && data.defaultLocation;
+};
+
 const Profile = () => {
   const [user, setUser] = useState<User | null>(null);
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isGoogleAuth, setIsGoogleAuth] = useState(false);
   const router = useRouter();
   const [colorMode, setColorMode] = useColorMode() as [string, (value: string) => void];
 
@@ -35,20 +41,28 @@ const Profile = () => {
     const unsubscribe = auth.onAuthStateChanged(async (authUser) => {
       if (authUser) {
         setUser(authUser);
+        setIsGoogleAuth(authUser.providerData[0]?.providerId === 'google.com');
         const userRef = doc(db, "users", authUser.uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
+        let userSnap = await getDoc(userRef);
+        
+        if (!userSnap.exists() || !isUserDataComplete(userSnap.data())) {
+          // If user doesn't exist in Firestore or data is incomplete, redirect to AdditionalDetails page
+          router.push("/auth/additional-details");
+        } else {
           const data = userSnap.data();
-          const birthDate = new Date(data.dob);
+          const birthDate = data.dob ? new Date(data.dob) : null;
           const today = new Date();
-          let calculatedAge = today.getFullYear() - birthDate.getFullYear();
-          const m = today.getMonth() - birthDate.getMonth();
-          if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-            calculatedAge--;
+          let calculatedAge = null;
+          if (birthDate) {
+            calculatedAge = today.getFullYear() - birthDate.getFullYear();
+            const m = today.getMonth() - birthDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+              calculatedAge--;
+            }
           }
           setUserData({
             ...data,
-            age: calculatedAge,
+            age: calculatedAge || data.age,
             lastActive: today.toLocaleDateString(),
           });
         }
@@ -87,7 +101,7 @@ const Profile = () => {
   }
 
   if (!user || !userData) {
-    return <div>No user data available.</div>;
+    return null; // This will prevent any flickering while redirecting
   }
 
   return (
@@ -138,13 +152,16 @@ const Profile = () => {
               </button>
             </div>
             <div className="absolute bottom-0 left-0 right-0 flex flex-col sm:flex-row items-center sm:items-end p-4 sm:p-6">
-              <Image
-                src={userData.avatar || user.photoURL || "/default-avatar.png"}
-                alt={userData.name}
-                width={120}
-                height={120}
-                className="h-24 w-24 sm:h-32 sm:w-32 rounded-full border-4 border-white bg-white object-cover shadow-lg mb-2 sm:mb-0 sm:mr-5"
-              />
+              {isGoogleAuth && userData.photoURL && (
+                <Image
+                  src={userData.photoURL}
+                  alt={userData.name}
+                  width={120}
+                  height={120}
+                  className="h-24 w-24 sm:h-32 sm:w-32 rounded-full border-4 border-white bg-white object-cover shadow-lg mb-2 sm:mb-0 sm:mr-5"
+                  unoptimized
+                />
+              )}
               <div className="text-white text-center sm:text-left">
                 <h1 className="text-xl sm:text-4xl font-bold">{userData.name}</h1>
                 <p className="text-sm sm:text-xl">{userData.email}</p>
@@ -160,22 +177,24 @@ const Profile = () => {
                   <div className="flex items-center">
                     <DynamicFiUser className="mr-3 text-green-500 w-5 h-5 flex-shrink-0" />
                     <dt className={`text-sm font-medium ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} w-20 sm:w-24`}>Age:</dt>
-                    <dd className={`text-base sm:text-lg ${colorMode === 'dark' ? 'text-white' : 'text-black'}`}>{userData.age}</dd>
+                    <dd className={`text-base sm:text-lg ${colorMode === 'dark' ? 'text-white' : 'text-black'}`}>{userData.age || 'Not specified'}</dd>
                   </div>
                   <div className="flex items-center">
                     <DynamicFiUser className="mr-3 text-green-500 w-5 h-5 flex-shrink-0" />
                     <dt className={`text-sm font-medium ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} w-20 sm:w-24`}>Gender:</dt>
-                    <dd className={`text-base sm:text-lg ${colorMode === 'dark' ? 'text-white' : 'text-black'}`}>{userData.gender}</dd>
+                    <dd className={`text-base sm:text-lg ${colorMode === 'dark' ? 'text-white' : 'text-black'}`}>{userData.gender || 'Not specified'}</dd>
                   </div>
                   <div className="flex items-center">
                     <DynamicFiMapPin className="mr-3 text-green-500 w-5 h-5 flex-shrink-0" />
                     <dt className={`text-sm font-medium ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} w-20 sm:w-24`}>Location:</dt>
-                    <dd className={`text-base sm:text-lg ${colorMode === 'dark' ? 'text-white' : 'text-black'}`}>{userData.defaultLocation}</dd>
+                    <dd className={`text-base sm:text-lg ${colorMode === 'dark' ? 'text-white' : 'text-black'}`}>{userData.defaultLocation || 'Not specified'}</dd>
                   </div>
                   <div className="flex items-center">
                     <DynamicFiCalendar className="mr-3 text-green-500 w-5 h-5 flex-shrink-0" />
                     <dt className={`text-sm font-medium ${colorMode === 'dark' ? 'text-gray-400' : 'text-gray-500'} w-20 sm:w-24`}>Birthdate:</dt>
-                    <dd className={`text-base sm:text-lg ${colorMode === 'dark' ? 'text-white' : 'text-black'}`}>{new Date(userData.dob).toLocaleDateString()}</dd>
+                    <dd className={`text-base sm:text-lg ${colorMode === 'dark' ? 'text-white' : 'text-black'}`}>
+                      {userData.dob ? new Date(userData.dob).toLocaleDateString() : 'Not specified'}
+                    </dd>
                   </div>
                 </dl>
                 <h2 className={`text-xl sm:text-2xl font-semibold ${colorMode === 'dark' ? 'text-white' : 'text-black'} mt-6 sm:mt-8 mb-4 sm:mb-6`}>Share AirWatch</h2>
